@@ -14,7 +14,6 @@ import {getUserCategories} from '../../utils/UserSavedCategories';
 import {Category} from '../../models/Category';
 import {PERMISSIONS, request} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
-import SvgSaveIcon from '../../assets/images/SaveIcon';
 import axios from 'axios';
 import {ActivityIndicator, MD2Colors} from 'react-native-paper';
 import ExploreCard from '../../components/tabComponents/ExploreCard';

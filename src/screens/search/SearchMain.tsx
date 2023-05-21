@@ -13,7 +13,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Categories from '../../data/Catagories';
 import {useFocusEffect} from '@react-navigation/native';
 
-const SearchMain = () => {
+const SearchMain = ({navigation}:any) => {
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -71,7 +71,16 @@ const SearchMain = () => {
       <FlatList
         data={filteredPlaces}
         renderItem={({item}) => {
-          return <ExploreCard item={item} />;
+          return (
+            <>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('DetailScreen', {id: item.id})
+                }>
+                <ExploreCard item={item} />
+              </TouchableOpacity>
+            </>
+          );
         }}
         keyExtractor={item => item.id.toString()}
       />
