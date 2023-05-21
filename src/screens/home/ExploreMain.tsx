@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -18,7 +18,11 @@ import axios from 'axios';
 import {ActivityIndicator, MD2Colors} from 'react-native-paper';
 import ExploreCard from '../../components/tabComponents/ExploreCard';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import '../../language/i18n';
+import {useTranslation} from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ThemeContext} from '../../context/ThemeContext';
 
 const API_KEY = '';
 const GOOGLE_API_KEY = '';
@@ -29,7 +33,17 @@ const ExpolreMain = ({navigation}: any) => {
   const [cityName, setCityName] = useState<string | null>(null);
   const [countryName, setCountryName] = useState<string | null>(null);
   const [weatherData, setWeatherData] = useState<any>(null);
+  const [currentLanguage, setcurrentLanguage] = useState('az');
+  const {t, i18n} = useTranslation();
+  const {theme, toggleTheme} = useContext(ThemeContext);
 
+  const changeLang = (lang: string) => {
+    i18n.changeLanguage(lang).then(() => {
+      i18n.options.lng = lang;
+      AsyncStorage.setItem('language', lang);
+      setcurrentLanguage(lang);
+    });
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -37,9 +51,8 @@ const ExpolreMain = ({navigation}: any) => {
       getUserCategories().then(res => {
         setExistCategories(res);
         console.log('salam');
-        
       });
-    }, [])
+    }, []),
   );
 
   const getLocation = () => {
@@ -139,7 +152,8 @@ const ExpolreMain = ({navigation}: any) => {
 
   const renderMyItem = ({item}: any) => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('DetailScreen', {id: item.id})}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('DetailScreen', {id: item.id})}>
         <ExploreCard item={item} />
       </TouchableOpacity>
     );
@@ -157,11 +171,21 @@ const ExpolreMain = ({navigation}: any) => {
       </View>
     );
   };
-
+  const categoryItemContainerStles = {
+    backgroundColor: theme === 'dark' ? '#fff' : '#1c1c1c',
+    marginBottom: 10,
+    // flex:1
+  };
+  const titleStles = {
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+    fontSize: 16,
+  };
   const ListItem = ({item}: any) => {
     return (
-      <View style={styles.categoryItemContainer}>
-        <Text style={styles.categoryItemText}>{item.name}s nearby</Text>
+      <View style={[categoryItemContainerStles]}>
+        <Text style={[titleStles, {marginLeft: 15, fontSize: 20}]}>
+          {item.name}s nearby
+        </Text>
         <View>
           <ListAnother item={item} />
         </View>
@@ -173,20 +197,48 @@ const ExpolreMain = ({navigation}: any) => {
     return kelvin - 273.15;
   };
 
+  const containerStyles = {
+    backgroundColor: theme === 'dark' ? '#fff' : '#1c1c1c',
+    flex: 1,
+  };
+  const locationContainertextcontainerStyles:any = {
+    fontSize: 16,
+    marginRight: 5,
+    marginLeft: 5,
+    alignSelf: 'center',
+    paddingRight: 70,
+
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+  };
+
+  const locationBackground:any = {
+    flexDirection: 'row',
+    backgroundColor: theme === 'dark' ? 'gray' : '#262626',
+    height: 36,
+    borderRadius: 12,
+  };
+
+  const weathertextStyles = {
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+
+    // flexDirection: 'row',
+    // alignItems: 'center',
+  };
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <GestureHandlerRootView style={[containerStyles]}>
       {location ? (
         <View>
           {countryName ? (
             <View>
-              <View style={styles.locationContainer}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    backgroundColor: '#262626',
-                    height: 36,
-                    borderRadius: 12,
-                  }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginVertical: 10,
+                  justifyContent: 'space-around',
+                  marginHorizontal: 10,
+                }}>
+                <View style={[locationBackground]}>
                   <View
                     style={{
                       alignItems: 'center',
@@ -196,7 +248,7 @@ const ExpolreMain = ({navigation}: any) => {
                     <Text>📍</Text>
                   </View>
                   {cityName && countryName && (
-                    <Text style={styles.locationText}>
+                    <Text style={[locationContainertextcontainerStyles]}>
                       {cityName.substring(0, 7)}, {countryName.substring(0, 10)}
                     </Text>
                   )}
@@ -204,7 +256,7 @@ const ExpolreMain = ({navigation}: any) => {
                 <View
                   style={{
                     flexDirection: 'row',
-                    backgroundColor: '#262626',
+                    backgroundColor: theme === 'dark' ? 'gray' : '#262626',
                     height: 36,
                     borderRadius: 12,
                     paddingHorizontal: 5,
@@ -219,7 +271,7 @@ const ExpolreMain = ({navigation}: any) => {
                           }}
                         />
                       )}
-                      <Text style={styles.temperatureText}>
+                      <Text style={weathertextStyles}>
                         {convertKelvinToCelsius(
                           weatherData.main.temp,
                         ).toFixed()}
@@ -256,10 +308,12 @@ const ExpolreMain = ({navigation}: any) => {
               fontSize: 24,
               fontWeight: '500',
             }}>
-            Geolocation is disabled
+            {t('Geolocation is disabled')}
           </Text>
           <Text style={{textAlign: 'center', width: 275, fontSize: 16}}>
-            To improve the application, enable geolocation in the settings.
+            {t(
+              ' To improve the application, enable geolocation in the settings.',
+            )}
           </Text>
           <TouchableOpacity
             onPress={openLocationSettings}
@@ -271,7 +325,7 @@ const ExpolreMain = ({navigation}: any) => {
               borderRadius: 8,
             }}>
             <Text style={{alignSelf: 'center', fontSize: 16, color: '#fff'}}>
-              Open Settings
+              {t('Open Settings')}
             </Text>
           </TouchableOpacity>
         </View>

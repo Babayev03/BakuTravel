@@ -3,7 +3,7 @@ import React,{useState,useEffect} from 'react'
 import { FirstLoginProvider } from './src/context/FirstLoginContext'
 import SplashScreen from './src/screens/splash/SplashScreen'
 import OpenScreen from './src/screens/splash/OpenScreen'
-
+import { ThemeProvider } from './src/context/ThemeContext'
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
   useEffect(() => {
@@ -20,7 +20,9 @@ const App = () => {
       <>
       <NavigationContainer>
         <FirstLoginProvider>
+          <ThemeProvider>
           <OpenScreen />
+          </ThemeProvider>
         </FirstLoginProvider> 
       </NavigationContainer>
     </>
@@ -29,5 +31,5 @@ const App = () => {
   )
 }
 
-export default App
+export default App;
 

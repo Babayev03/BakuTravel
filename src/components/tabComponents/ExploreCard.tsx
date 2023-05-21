@@ -1,26 +1,61 @@
-import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import SvgSaveIcon from '../../assets/images/SaveIcon';
 import Places from '../../data/Places';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemeContext } from '../../context/ThemeContext';
+import Geolocation from '@react-native-community/geolocation';
 
-const ExploreCard = ({item}: any) => {
-  const [allData, setallData] = useState<any>([]);
-  const [isSaved, setisSaved] = useState(false);
+const ExploreCard = ({ item }: any) => {
+  const [allData, setAllData] = useState<any>([]);
+  const [isSaved, setIsSaved] = useState(false);
+  const [deviceLatitude, setDeviceLatitude] = useState(0);
+  const [deviceLongitude, setDeviceLongitude] = useState(0);
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
+  const containerStyles:any = {
+    backgroundColor: theme === 'dark' ? '#fff' : '#1c1c1c',
+    flex: 1,
+    justifyContent: 'center',
+    width: 300,
+  };
+
+  const titleStyles = {
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+    fontSize: 20,
+    marginLeft: 10,
+  };
+
+  const textStyles = {
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+  };
 
   useEffect(() => {
     loadSavedPlaces();
+    getCurrentLocation();
   }, []);
 
   const loadSavedPlaces = async () => {
     try {
       const savedPlaces = await AsyncStorage.getItem('SavedPlaces');
       if (savedPlaces !== null) {
-        setallData(JSON.parse(savedPlaces));
+        setAllData(JSON.parse(savedPlaces));
       }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        setDeviceLatitude(position.coords.latitude);
+        setDeviceLongitude(position.coords.longitude);
+      },
+      error => {
+        console.log(error);
+      }
+    );
   };
 
   const savePlace = async (id: any) => {
@@ -28,9 +63,9 @@ const ExploreCard = ({item}: any) => {
       const getPlace = Places.find(place => place.id === id);
       if (getPlace) {
         const updatedData = [...allData, getPlace];
-        setallData(updatedData);
+        setAllData(updatedData);
         await AsyncStorage.setItem('SavedPlaces', JSON.stringify(updatedData));
-        setisSaved(true);
+        setIsSaved(true);
       }
     } catch (error) {
       console.log(error);
@@ -39,10 +74,10 @@ const ExploreCard = ({item}: any) => {
 
   const removePlace = async (id: any) => {
     try {
-      const updatedData = allData.filter((place:any) => place.id !== id);
-      setallData(updatedData);
+      const updatedData = allData.filter((place: any) => place.id !== id);
+      setAllData(updatedData);
       await AsyncStorage.setItem('SavedPlaces', JSON.stringify(updatedData));
-      setisSaved(false);
+      setIsSaved(false);
     } catch (error) {
       console.log(error);
     }
@@ -57,41 +92,65 @@ const ExploreCard = ({item}: any) => {
   };
 
   useEffect(() => {
-    const isPlaceSaved = allData.find((place:any) => place.id === item.id);
-    setisSaved(!!isPlaceSaved);
+    const isPlaceSaved = allData.find((place: any) => place.id === item.id);
+    setIsSaved(!!isPlaceSaved);
   }, [allData, item.id]);
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const earthRadius = 6371; // Radius of the Earth in kilometers
+    const dLat = degreesToRadians(lat2 - lat1);
+    const dLon = degreesToRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(degreesToRadians(lat1)) *
+        Math.cos(degreesToRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = earthRadius * c;
+    return distance;
+  };
+
+  const degreesToRadians = (degrees: number) => {
+    return degrees * (Math.PI / 180);
+  };
+
+  const distance = calculateDistance(
+    deviceLatitude,
+    deviceLongitude,
+    item.lat,
+    item.long
+  );
 
   return (
     <View key={item.id} style={styles.placeContainer}>
       <View style={styles.main}>
         <View>
           <Image
-            source={{uri: item.imageUrl}}
+            source={{ uri: item.imageUrl }}
             style={styles.placeImage}
             resizeMode="cover"
           />
         </View>
-        <TouchableOpacity
-          style={styles.saveIcon}
-          onPress={() => handleSave(item.id)}>
+        <TouchableOpacity style={styles.saveIcon} onPress={() => handleSave(item.id)}>
           <SvgSaveIcon fill={isSaved ? 'white' : 'none'} stroke={'white'} />
         </TouchableOpacity>
-        <View style={styles.placeInfoContainer}>
-          <Text style={styles.placeName}>{item.name}</Text>
-          <View style={{flexDirection: 'row', gap: 18.5}}>
-            <View style={{flexDirection: 'row', gap: 4}}>
+        <View style={[containerStyles, { marginLeft: 5, marginTop: 5 }]}>
+          <Text style={titleStyles}>{item.name}</Text>
+          <View style={{ flexDirection: 'row', gap: 18.5, marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
               <Text>📍</Text>
-              <Text style={styles.placeRating}>4km</Text>
+              <Text style={textStyles}>{distance.toFixed(2)} km</Text>
             </View>
-            <View style={{flexDirection: 'row', gap: 4}}>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
               <Text>🕘</Text>
-              <Text style={styles.PlaceTime}>
+              <Text style={textStyles}>
                 {item.open} - {item.close}
               </Text>
             </View>
-            <View style={{flexDirection: 'row', gap: 4}}>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
               <Text>⭐️</Text>
-              <Text style={styles.placeRating}>{item.rate}</Text>
+              <Text style={textStyles}>{item.rate}</Text>
             </View>
           </View>
         </View>

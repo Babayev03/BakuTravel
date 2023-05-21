@@ -20,7 +20,9 @@
     "@types/react-native-maps": "^0.24.2",
     "async-storage": "^0.1.0",
     "axios": "^1.4.0",
+    "haversine-distance": "^1.2.1",
     "i18next": "^22.5.0",
+    "i18next-react-native-async-storage": "^1.0.4",
     "react": "18.2.0",
     "react-i18next": "^12.3.1",
     "react-native": "0.71.8",
@@ -36,7 +38,8 @@
     "react-native-splash-screen": "^3.3.0",
     "react-native-svg": "^13.9.0",
     "react-native-svg-transformer": "^1.0.0",
-    "react-native-vector-icons": "^9.2.0"
+    "react-native-vector-icons": "^9.2.0",
+    "theme": "^0.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

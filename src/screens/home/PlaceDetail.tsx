@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, useContext} from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,19 @@ import MapView, {Marker} from 'react-native-maps';
 import {Place} from '../../models/Place';
 import axios from 'axios';
 import {ActivityIndicator, MD2Colors} from 'react-native-paper';
-
+import '../../language/i18n'
+import { useTranslation } from "react-i18next";
+import { ThemeContext } from '../../context/ThemeContext';
 const PlaceDetails = ({route}: any) => {
   const {id} = route.params;
 
   const [place, setPlace] = useState<Place | null>(null);
   const mapRef = useRef(null);
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
+  const [currentLanguage, setcurrentLanguage] = useState('az')
+
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const fetchPlace = async () => {
@@ -39,23 +46,58 @@ const PlaceDetails = ({route}: any) => {
       Linking.openURL(url);
     }
   };
+  const mainStyle = {
+    backgroundColor: theme === 'dark' ? '#fff' : '#1c1c1c',
+    flex:1
+  };
+  const containerStyles = {
+    backgroundColor: theme === 'dark' ? '#fff' : '#1c1c1c',
+    alignSelf: 'center',
+ 
+  };
+  const titleStles = {
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+    fontSize:24,
+   
+  };
+
+const textstyles = {
+color: theme === 'dark' ? '#1c1c1c' : '#fff',
+ fontSize: 20,
+ fontWeight: '600',
+ marginBottom: 5,
+ lineHeight: 28,
+};
+const NameStyles = {
+  // backgroundColor: theme === 'dark' ? '#1c1c1c' : '#fff',
+  flexDirection: 'row',
+  //   justifyContent: 'space-between',
+    // marginRight: 16,
+};
+const imageStyles = {
+  width: 350,
+    height: 225,
+    marginBottom: 10,
+    borderTopRightRadius: 12,
+    borderTopLeftRadius: 12,
+}
 
   return (
-    <View style={styles.main}>
-      <View style={styles.container}>
+    <View style={mainStyle}>
+      <View style={containerStyles}>
         {place ? (
           <>
-            <Image source={{uri: place.imageUrl}} style={styles.image} />
-            <View style={styles.NameRate}>
-              <Text style={styles.name}>{place.name} </Text>
-              <Text style={styles.rate}>⭐ {place.rate}</Text>
+            <Image source={{uri: place.imageUrl}} style={imageStyles} />
+            <View style={NameStyles}>
+              <Text style={textstyles}>{place.name} </Text>
+              <Text style={textstyles}>⭐ {place.rate}</Text>
             </View>
             <View style={styles.information}>
-              <Text style={styles.infotext}>Information</Text>
-              <Text style={styles.time}>🕘 {place.opentime}</Text>
-              <Text style={styles.contact}>📞 {place.contact}</Text>
-              <Text style={styles.contact}>📍 {place.location}</Text>
-              <Text style={styles.MapHeader}>Map</Text>
+              <Text style={textstyles}>{t("information")}</Text>
+              <Text style={textstyles}>🕘 {place.opentime}</Text>
+              <Text style={textstyles}>📞 {place.contact}</Text>
+              <Text style={textstyles}>📍 {place.location}</Text>
+              <Text style={textstyles}>{t("Map")}</Text>
             </View>
 
             <View style={styles.MapMain}>
@@ -80,7 +122,7 @@ const PlaceDetails = ({route}: any) => {
               </View>
             </View>
             <TouchableOpacity style={styles.button} onPress={handleGoToMap}>
-              <Text style={styles.buttonText}>Go To Map</Text>
+              <Text style={styles.buttonText}>{t("Go To Map")}</Text>
             </TouchableOpacity>
           </>
         ) : (
@@ -97,7 +139,7 @@ const PlaceDetails = ({route}: any) => {
 const styles = StyleSheet.create({
   main: {
     flex: 1,
-    backgroundColor: '#1c1c1c',
+    // backgroundColor: '#1c1c1c',
   },
   container: {
     alignSelf: 'center',

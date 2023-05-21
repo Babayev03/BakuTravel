@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useContext} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import {
   View,
@@ -11,10 +11,13 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SvgSaveIcon from '../../assets/images/SaveIcon';
 import ExploreCard from '../../components/tabComponents/ExploreCard';
-
+import '../../language/i18n'
+import { useTranslation } from "react-i18next";
+import { ThemeContext } from '../../context/ThemeContext';
 const SaveMain = ({navigation}: any) => {
   const [savedPlaces, setSavedPlaces] = useState<any>([]);
-
+  const [currentLanguage, setcurrentLanguage] = useState('az')
+  const { t, i18n } = useTranslation();
   useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
@@ -28,6 +31,21 @@ const SaveMain = ({navigation}: any) => {
       fetchData();
     }, []),
   );
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const containerStyles = {
+    backgroundColor: theme === 'dark' ? '#fff' : '#1c1c1c',
+    flex:1,
+    justifyContent:"center",
+    alignItems:"center"
+  };
+  const titleStles = {
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+    fontSize:24,
+   
+  };
+  const textStyles = {
+    color: theme === 'dark' ? '#1c1c1c' : '#fff',
+};
 
   const loadSavedPlaces = async () => {
     try {
@@ -42,18 +60,18 @@ const SaveMain = ({navigation}: any) => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: '#1C1C1C'}}>
+    <View style={containerStyles}>
       {savedPlaces.length > 0 ? (
         <View style={{marginVertical:25,marginHorizontal:15}}>
-          <Text style={{fontSize: 25,color:"#fff"}}>Saved</Text>
+          <Text style={titleStles}>{t("Saved")}</Text>
         </View>
       ) : (
         <View
           style={{flex: 50, alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={{fontSize:16,color:"#fff"}}>No Saved Items Yet</Text>
+          <Text style={textStyles}>{t("No Saved Items Yet")}</Text>
         </View>
       )}
-      <View style={{flex:1}}>
+      <View style={containerStyles}>
         <FlatList
           data={savedPlaces}
           keyExtractor={item => item.id.toString()}
