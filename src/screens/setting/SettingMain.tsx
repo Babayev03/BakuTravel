@@ -3,7 +3,7 @@ import React from 'react'
 
 const SettingMain = () => {
   return (
-    <View>
+    <View style={{flex:1,backgroundColor:"#1c1c1c"}}>
       <Text>SettingMain</Text>
     </View>
   )

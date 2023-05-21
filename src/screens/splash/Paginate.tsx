@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View ,Animated} from 'react-native'
-import React,{useRef} from 'react'
+import React from 'react'
 
 const Paginate = ({ datas, currentIndex }: any) => {
   return (

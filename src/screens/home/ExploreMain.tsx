@@ -17,7 +17,6 @@ import Geolocation from 'react-native-geolocation-service';
 import SvgSaveIcon from '../../assets/images/SaveIcon';
 import axios from 'axios';
 import {ActivityIndicator, MD2Colors} from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ExploreCard from '../../components/tabComponents/ExploreCard';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
